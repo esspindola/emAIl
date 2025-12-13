@@ -123,8 +123,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
       !changeInfo.url.includes('view=cm') &&
       !changeInfo.url.includes('google.com/mail')
     ) {
-      // Si navegó fuera de gmail, asumimos fin o error, pero mejor esperar a cierre explícito
-      // Por seguridad, dejaremos que el usuario cierre la pestaña (onRemoved).
     }
   }
 });
