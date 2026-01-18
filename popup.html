@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Batch Mailto</title>
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
 
       * {
         margin: 0;
@@ -14,7 +14,7 @@
       }
 
       body {
-        font-family: 'Inter', system-ui, sans-serif;
+        font-family: "Inter", system-ui, sans-serif;
         background: linear-gradient(
           135deg,
           #fce4ec 0%,
@@ -57,7 +57,7 @@
         border-radius: 12px;
         background: rgba(255, 255, 255, 0.9);
         backdrop-filter: blur(10px);
-        font-family: 'Inter', system-ui, sans-serif;
+        font-family: "Inter", system-ui, sans-serif;
         font-size: 14px;
         color: #4a1942;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -69,7 +69,8 @@
         outline: none;
         border-color: #ec407a;
         background: rgba(255, 255, 255, 1);
-        box-shadow: 0 4px 16px rgba(236, 64, 122, 0.2),
+        box-shadow:
+          0 4px 16px rgba(236, 64, 122, 0.2),
           0 0 0 4px rgba(236, 64, 122, 0.1);
         transform: translateY(-1px);
       }
@@ -104,7 +105,7 @@
         border: none;
         background: linear-gradient(135deg, #d81b60, #ec407a);
         color: #fff;
-        font-family: 'Inter', system-ui, sans-serif;
+        font-family: "Inter", system-ui, sans-serif;
         font-size: 15px;
         font-weight: 600;
         cursor: pointer;
@@ -198,6 +199,8 @@
       No uses esta herramienta para suplantar identidades ni enviar
       notificaciones engañosas.
     </div>
+    <label>Tu cuenta de Gmail (desde la que enviás)</label>
+    <input id="senderAccount" type="email" placeholder="tucuenta@gmail.com" />
     <label>Destinatario (email)</label>
     <input id="dest" type="email" placeholder="destino@dominio.com" />
     <label>Saludo (ej. Fran;)</label>

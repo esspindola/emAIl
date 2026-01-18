@@ -1,24 +1,25 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   const getEl = (id) => document.getElementById(id);
 
   const elements = {
-    dest: getEl('dest'),
-    saludo: getEl('saludo'),
-    case: getEl('case'),
-    links: getEl('links'),
-    subjectTemplate: getEl('subjectTemplate'),
-    bodyTemplate: getEl('bodyTemplate'),
-    start: getEl('start'),
-    reset: getEl('reset'),
-    status: getEl('status'),
-    delayMin: getEl('delayMin'),
-    delayMax: getEl('delayMax'),
+    senderAccount: getEl("senderAccount"),
+    dest: getEl("dest"),
+    saludo: getEl("saludo"),
+    case: getEl("case"),
+    links: getEl("links"),
+    subjectTemplate: getEl("subjectTemplate"),
+    bodyTemplate: getEl("bodyTemplate"),
+    start: getEl("start"),
+    reset: getEl("reset"),
+    status: getEl("status"),
+    delayMin: getEl("delayMin"),
+    delayMax: getEl("delayMax"),
   };
 
   const DEFAULTS = {
-    case: '009873965829517000',
+    case: "009873965829517000",
     subjectTemplate:
-      '{{username}} | Feedback #{{CASE}} 𝄀 Shadowbanned Account Notice',
+      "{{username}} | Feedback #{{CASE}} 𝄀 Shadowbanned Account Notice",
     bodyTemplate: `{{saludo}}
 
 We want to inform you that the account @{{username}} is violating twenty-eight (28) community reports of our platform.
@@ -35,46 +36,50 @@ Case No. {{CASE}}`,
   function loadSettings() {
     chrome.storage.local.get(
       [
-        'dest',
-        'saludo',
-        'case',
-        'links',
-        'subjectTemplate',
-        'bodyTemplate',
-        'delayMin',
-        'delayMax',
-        'currentIndex',
+        "senderAccount",
+        "dest",
+        "saludo",
+        "case",
+        "links",
+        "subjectTemplate",
+        "bodyTemplate",
+        "delayMin",
+        "delayMax",
+        "currentIndex",
       ],
       (res) => {
-        if (elements.dest) elements.dest.value = res.dest || '';
-        if (elements.saludo) elements.saludo.value = res.saludo || '';
+        if (elements.senderAccount)
+          elements.senderAccount.value = res.senderAccount || "";
+        if (elements.dest) elements.dest.value = res.dest || "";
+        if (elements.saludo) elements.saludo.value = res.saludo || "";
         if (elements.case) elements.case.value = res.case || DEFAULTS.case;
-        if (elements.links) elements.links.value = res.links || '';
+        if (elements.links) elements.links.value = res.links || "";
         if (elements.subjectTemplate)
           elements.subjectTemplate.value =
             res.subjectTemplate || DEFAULTS.subjectTemplate;
         if (elements.bodyTemplate)
           elements.bodyTemplate.value =
             res.bodyTemplate || DEFAULTS.bodyTemplate;
-        if (elements.delayMin) elements.delayMin.value = res.delayMin || '3000';
-        if (elements.delayMax) elements.delayMax.value = res.delayMax || '8000';
+        if (elements.delayMin) elements.delayMin.value = res.delayMin || "3000";
+        if (elements.delayMax) elements.delayMax.value = res.delayMax || "8000";
         updateStatusUI(res.currentIndex || 0);
-      }
+      },
     );
   }
 
   function saveSettings() {
     chrome.storage.local.set({
-      dest: elements.dest ? elements.dest.value : '',
-      saludo: elements.saludo ? elements.saludo.value : '',
-      case: elements.case ? elements.case.value : '',
-      links: elements.links ? elements.links.value : '',
+      senderAccount: elements.senderAccount ? elements.senderAccount.value : "",
+      dest: elements.dest ? elements.dest.value : "",
+      saludo: elements.saludo ? elements.saludo.value : "",
+      case: elements.case ? elements.case.value : "",
+      links: elements.links ? elements.links.value : "",
       subjectTemplate: elements.subjectTemplate
         ? elements.subjectTemplate.value
-        : '',
-      bodyTemplate: elements.bodyTemplate ? elements.bodyTemplate.value : '',
-      delayMin: elements.delayMin ? elements.delayMin.value : '',
-      delayMax: elements.delayMax ? elements.delayMax.value : '',
+        : "",
+      bodyTemplate: elements.bodyTemplate ? elements.bodyTemplate.value : "",
+      delayMin: elements.delayMin ? elements.delayMin.value : "",
+      delayMax: elements.delayMax ? elements.delayMax.value : "",
     });
   }
 
@@ -88,21 +93,21 @@ Case No. {{CASE}}`,
   }
 
   function normalizeLink(s) {
-    if (s.includes('instagram.com')) {
-      const parts = s.split('instagram.com/')[1] || '';
+    if (s.includes("instagram.com")) {
+      const parts = s.split("instagram.com/")[1] || "";
       return parts.split(/[/?#]/)[0];
     }
-    return s.replace(/[\\/?#].*$/, '').split(/[/?#]/)[0];
+    return s.replace(/[\\/?#].*$/, "").split(/[/?#]/)[0];
   }
 
   function nextCase(caseStr) {
     try {
       const n = BigInt(caseStr) + 1n;
-      return n.toString().padStart(caseStr.length, '0');
+      return n.toString().padStart(caseStr.length, "0");
     } catch (e) {
       const num = parseInt(caseStr, 10) || 0;
       const next = num + 1;
-      return String(next).padStart(caseStr.length, '0');
+      return String(next).padStart(caseStr.length, "0");
     }
   }
 
@@ -113,9 +118,12 @@ Case No. {{CASE}}`,
       .replace(/\{\{\s*saludo\s*\}\}/g, map.saludo);
   }
 
-  function openMail(dest, subject, body, callback) {
-    const url = `https://mail.google.com/mail/u/0/?view=cm&fs=1&to=${encodeURIComponent(
-      dest
+  function openMail(senderAccount, dest, subject, body, callback) {
+    const authParam = senderAccount
+      ? `authuser=${encodeURIComponent(senderAccount)}&`
+      : "";
+    const url = `https://mail.google.com/mail/?${authParam}view=cm&fs=1&to=${encodeURIComponent(
+      dest,
     )}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     chrome.tabs.create({ url }, callback);
   }
@@ -125,7 +133,7 @@ Case No. {{CASE}}`,
 
     const list = parseLinks(elements.links.value);
     if (list.length === 0) {
-      elements.status.textContent = 'No hay links válidos.';
+      elements.status.textContent = "No hay links válidos.";
       elements.start.disabled = true;
       return;
     }
@@ -148,11 +156,11 @@ Case No. {{CASE}}`,
 
     if (list.length === 0) {
       if (elements.status)
-        elements.status.textContent = 'No hay links válidos.';
+        elements.status.textContent = "No hay links válidos.";
       return;
     }
 
-    chrome.storage.local.get(['currentIndex', 'case'], (res) => {
+    chrome.storage.local.get(["currentIndex", "case"], (res) => {
       const index = res.currentIndex || 0;
       const currentCase =
         res.case ||
@@ -166,8 +174,11 @@ Case No. {{CASE}}`,
       }
 
       const username = list[index];
-      const dest = elements.dest ? elements.dest.value.trim() : '';
-      const saludo = elements.saludo ? elements.saludo.value : '';
+      const senderAccount = elements.senderAccount
+        ? elements.senderAccount.value.trim()
+        : "";
+      const dest = elements.dest ? elements.dest.value.trim() : "";
+      const saludo = elements.saludo ? elements.saludo.value : "";
       const subjectTemplate = elements.subjectTemplate
         ? elements.subjectTemplate.value
         : DEFAULTS.subjectTemplate;
@@ -187,29 +198,30 @@ Case No. {{CASE}}`,
         saludo,
       });
 
-      openMail(dest, subject, body, (tab) => {
-        chrome.runtime.sendMessage({ firstTab: tab.id });
-      });
-
       const newIndex = index + 1;
       const newCase = nextCase(currentCase);
 
-      chrome.storage.local.set({
-        currentIndex: newIndex,
-        case: newCase,
-      });
-
-      if (elements.case) elements.case.value = newCase;
-      updateStatusUI(newIndex);
+      chrome.storage.local.set(
+        {
+          _processing: true,
+          currentIndex: newIndex,
+          case: newCase,
+        },
+        () => {
+          openMail(senderAccount, dest, subject, body, () => {});
+          if (elements.case) elements.case.value = newCase;
+          updateStatusUI(newIndex);
+        },
+      );
     });
   }
 
   if (elements.start) {
-    elements.start.addEventListener('click', handleSend);
+    elements.start.addEventListener("click", handleSend);
   }
 
   if (elements.reset) {
-    elements.reset.addEventListener('click', () => {
+    elements.reset.addEventListener("click", () => {
       chrome.storage.local.set({ currentIndex: 0 }, () => {
         updateStatusUI(0);
       });
@@ -217,7 +229,7 @@ Case No. {{CASE}}`,
   }
 
   if (elements.links) {
-    elements.links.addEventListener('input', () => {
+    elements.links.addEventListener("input", () => {
       chrome.storage.local.set({ currentIndex: 0 }, () => updateStatusUI(0));
     });
   }
